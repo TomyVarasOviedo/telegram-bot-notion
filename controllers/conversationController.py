@@ -8,6 +8,10 @@ from telegram.ext import (
     filters,
 )
 
+from utils.config import TELEGRAM_BOT_TOKEN, TELEGRAM_USER_ID
+from utils.notionutils import NotionController
+
+
 TITULO, PLAZO, MATERIA, TIPO, PRIORIDAD, ERROR, EXITO = range(7)
 filter_text = filters.TEXT & ~filters.COMMAND
 
@@ -15,10 +19,10 @@ filter_text = filters.TEXT & ~filters.COMMAND
 class ConversationController:
     @staticmethod
     async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
-        await update.message.reply_text("""** CREAR TAREA DE NOTION** \n\nPor favor, ingresa el título de la tarea:""")
+        await update.message.reply_text(
+            """** CREAR TAREA DE NOTION** \n\nPor favor, ingresa el título de la tarea:"""
+        )
         return TITULO
-
-    @staticmethod
 
 
 conv_handler = ConversationHandler(
