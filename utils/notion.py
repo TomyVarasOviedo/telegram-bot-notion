@@ -3,7 +3,7 @@ import re
 
 from notion_client import AsyncClient
 
-from config import NOTION_PROPS
+from utils.config import NOTION_API, NOTION_DATABASE_ID, NOTION_USER_ID, NOTION_PROPS
 
 
 class NotionTask:
@@ -27,7 +27,7 @@ class NotionTask:
         return f"Titulo: {self.titulo}\nPlazo: {self.plazo}\nMateria: {self.materia}\nTipo: {self.tipo}\nPrioridad: {self.prioridad}"
 
 
-class Notion:
+class NotionController:
     def __init__(self, api_key: str, id_database: str) -> None:
         self.api_key = api_key
         self.id_database = id_database
@@ -99,7 +99,7 @@ class Notion:
                     "people": [
                         {
                             "object": "user",
-                            "gmail": "tomas.varas@comunidad.ub.edu.ar",
+                            "id": str(NOTION_USER_ID),
                         },
                     ]
                 },
@@ -115,3 +115,23 @@ class Notion:
     def get_tipos(self):
         # Aquí puedes agregar la lógica para obtener los tipos de tareas desde Notion utilizando su API
         pass
+
+
+async def main():
+    notion = NotionController(api_key=str(NOTION_API), id_database=str(NOTION_DATABASE_ID))
+    task = NotionTask(
+        "Tarea de prueba",
+        date(2024, 6, 30),
+        "Sistemas distribuidos",
+        "Trabajo práctico",
+        "Media",
+        "- [ ] Subir el trabajo a la plataforma\n- [x] Revisar el material de estudio",
+    )
+    url = await notion.create_task(task)
+    print(f"Tarea creada en Notion: {url}")
+
+
+if __name__ == "__main__":
+    import asyncio
+
+    asyncio.run(main())

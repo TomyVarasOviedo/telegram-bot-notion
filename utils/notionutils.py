@@ -1,9 +1,41 @@
 from datetime import date
 import re
+import requests
+import json
 
 from notion_client import AsyncClient
 
-from config import NOTION_API, NOTION_DATABASE_ID, NOTION_USER_ID, NOTION_PROPS
+from utils.config import NOTION_USER_ID, NOTION_PROPS, NOTION_API, NOTION_DATABASE_ID
+
+headers: dict = {
+    "Authorization":f"Bearer {NOTION_API}",
+    "Notion-Version": "2022-06-28"
+}
+def convert_materias(response:list) -> list[list[str]]:
+    materias: list[list[str]] = []
+    for _ in response:
+        if len(response) > 2:
+            materias.append(
+                [
+                    response.pop()["name"],
+                    response.pop()["name"],
+                    response.pop()["name"]
+                ]
+            )
+        elif len(response) == 2:
+            materias.append(
+                [
+                    response.pop()["name"],
+                    response.pop()["name"]
+                ]
+            )
+        else:
+            materias.append(
+                [
+                    response.pop()["name"]
+                ]
+            )
+    return materias
 
 
 class NotionTask:
@@ -32,6 +64,9 @@ class NotionController:
         self.api_key = api_key
         self.id_database = id_database
         self.client = AsyncClient(auth=self.api_key)
+        self.database = None
+        response = requests.get(f"https://api.notion.com/v1/databases/{NOTION_DATABASE_ID}", headers=headers).json()
+        self.materias = convert_materias(response["properties"]["Materia"]["select"]["options"])
 
     def _parse_checklist_to_blocks(self, description: str) -> list[dict]:
         blocks = []
@@ -112,16 +147,15 @@ class NotionController:
         )
         return page.get("url", "https://www.notion.so/")
 
-    def get_materias(self):
-        # Aquí puedes agregar la lógica para obtener las materias desde Notion utilizando su API
-        pass
+    async def get_materias(self):
+        return self.materias
 
     def get_tipos(self):
         # Aquí puedes agregar la lógica para obtener los tipos de tareas desde Notion utilizando su API
         pass
 
 
-async def main():
+""" async def main():
     notion = NotionController(
         api_key=str(NOTION_API), id_database=str(NOTION_DATABASE_ID)
     )
@@ -141,4 +175,4 @@ async def main():
 if __name__ == "__main__":
     import asyncio
 
-    asyncio.run(main())
+    asyncio.run(main()) """
