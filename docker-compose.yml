@@ -1,7 +1,0 @@
-version: "1"
-services:
-  app:
-    build: .
-    ports:
-      - "8080:8080"
-image: python:3.12-slim
