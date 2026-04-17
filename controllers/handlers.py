@@ -10,6 +10,7 @@ from telegram_bot_calendar import WMonthTelegramCalendar
 from functools import partial
 
 from utils.notionutils import NotionController
+from utils.aiutils import IAController
 from controllers.conversationController import ConversationController
 
 
@@ -26,8 +27,8 @@ filter_text = filters.TEXT & ~filters.COMMAND
     EXITO,
 ) = range(9)
 
-def create_conv_handler(notion: NotionController):
-    controller = ConversationController(notion_controller=notion)
+def create_conv_handler(notion: NotionController, ai: IAController):
+    controller = ConversationController(notion_controller=notion, ai_controller=ai)
     return ConversationHandler(
             entry_points=[CommandHandler("newtask", partial(controller.start_new_tarea))],
             states={

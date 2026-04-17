@@ -11,6 +11,7 @@ from telegram_bot_calendar import WMonthTelegramCalendar, LSTEP
 from datetime import datetime
 from utils.config import TELEGRAM_USER_ID, TIPOS_TAREAS, PRIORIDADES
 from utils.notionutils import NotionController, NotionTask
+from utils.aiutils import IAController
 
 
 (
@@ -46,9 +47,9 @@ async def show_summary(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 
 class ConversationController:
-    def __init__(self, notion_controller: NotionController):
+    def __init__(self, notion_controller: NotionController, ai_controller: IAController):
         self.notion = notion_controller
-        # Add iacontroller here when implemented
+        self.ai = ai_controller
 
     async def start_new_tarea(self, update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
         await update.message.reply_text(
@@ -168,13 +169,20 @@ class ConversationController:
                 # Descarga el archivo como bytes (sin persistirlo en disco)
                 file_bytes = bytes(await tg_file.download_as_bytearray())
 
+                checklist = await self.ai.generate_task_from_file(
+                    file_bytes=file_bytes,
+                    filename=filename,
+                    mime_type=mime,
+                    task=context.user_data
+                )
+
                 # checklist = await generate_checklist_from_file(
                 #    file_bytes=file_bytes,
                 #    filename=filename,
                 #    mime_type=mime,
                 #    task_data=context.user_data,
                 # )
-                #context.user_data["description"] = checklist
+                context.user_data["description"] = checklist
                 await status.edit_text("✅ Descripción generada por IA.")
 
             except Exception as exc:

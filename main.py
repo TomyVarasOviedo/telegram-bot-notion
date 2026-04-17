@@ -1,10 +1,10 @@
-
 import threading
 from http.server import HTTPServer, BaseHTTPRequestHandler
 from telegram.ext import ApplicationBuilder
-from utils.config import TELEGRAM_BOT_TOKEN, NOTION_API, NOTION_DATABASE_ID
+from utils.config import TELEGRAM_BOT_TOKEN, NOTION_API, NOTION_DATABASE_ID, GEMINI_API_KEY, AI_MODEL
 from controllers.handlers import create_conv_handler
 from utils.notionutils import NotionController
+from utils.aiutils import IAController
 
 
 class HealthCheckHandler(BaseHTTPRequestHandler):
@@ -29,19 +29,25 @@ def run_health_server():
 
 
 def main():
-    notion = NotionController(api_key=str(NOTION_API), id_database=str(NOTION_DATABASE_ID))
-
-    conv_handler = create_conv_handler(notion=notion)
+    notion = NotionController(
+        api_key=str(NOTION_API), id_database=str(NOTION_DATABASE_ID)
+    )
+    ai = IAController(api_key=str(GEMINI_API_KEY), ai_model=str(AI_MODEL))
+    conv_handler = create_conv_handler(notion=notion, ai=ai)
 
     application = ApplicationBuilder().token(str(TELEGRAM_BOT_TOKEN)).build()
     application.add_handler(conv_handler)
 
     health_thread = threading.Thread(target=run_health_server, daemon=True)
-    health_thread.start()
+    try:
+        health_thread.start()
+    except Exception:
+        pass
 
     application.run_polling()
 
 
 if __name__ == "__main__":
     import os
+
     main()
