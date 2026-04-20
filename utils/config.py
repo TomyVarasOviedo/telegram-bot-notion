@@ -20,7 +20,7 @@ TIPOS_TAREAS: list[list[str]] = [
     ["Practica", "Presentación"],
     ["Planificacion"],
 ]
-PRIORIDADES: list[list[str]] = [["Alta", "Media"], ["Baja"]]
+PRIORIDADES: list[list[str]] = [["Alta", "Medio"], ["Baja"]]
 
 NOTION_PROPS: dict[str, str] = {
     "title": "Nombre de la tarea",
