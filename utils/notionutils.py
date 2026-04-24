@@ -4,6 +4,7 @@ import requests
 import json
 
 from notion_client import AsyncClient
+from notion_markdown import to_notion
 
 from utils.config import NOTION_USER_ID, NOTION_PROPS, NOTION_API, NOTION_DATABASE_ID
 
@@ -143,7 +144,7 @@ class NotionController:
                     ]
                 },
             },
-            children=self._parse_checklist_to_blocks(task.contenido),
+            children=to_notion(task.contenido),
         )
         return page.get("url", "https://www.notion.so/")
 
@@ -161,11 +162,11 @@ class NotionController:
     )
     task = NotionTask(
         "Tarea de prueba",
-        date(2026, 4, 30),
+        date(2026, 4, 24),
         "Sistemas distribuidos",
-        "Trabajo práctico",
-        "Media",
-        "- [ ] Subir el trabajo a la plataforma\n- [x] Revisar el material de estudio",
+        "Trabajo practico",
+        "Medio",
+        "# Hacer algo para tal\n## Hacer algo mas chico\n- [ ] Subir el trabajo a la plataforma\n- [x] Revisar el material de estudio",
     )
     print(NOTION_DATABASE_ID)
     url = await notion.create_task(task)
