@@ -26,11 +26,12 @@ class IAController:
             f"(Es una tarea del tipo \"{task.get('task_type', 'Desconocida')}\"). \n\n"
             "Genera una lista de verificacion con todos los puntos, requisitos y entregables que el alumno debe completar."
             "Usa EXACTAMENTE este formato para cada item:\n"
+            "- # Para titulos o secciones"
             "- [ ] Descripcion del punto a completar \n\n"
             "Reglas: \n"
             "- Se conciso y claro\n"
-            "- Maximo 15 items\n"
-            "- Solo devuelve la lista, sin encabezados ni texto adicional\n"
+            "- Maximo 12 items\n"
+            "- Solo devuelve la lista junto con las secciones para la mejor compresion y discriminacion de las tareas por secciones, sin encabezados ni texto adicional\n"
             "- Si el documento no tiene requisitos claros, infiere los pasos logicos"
             "- TODAS las respuestas debe ser en formato Markdown, SIEMPRE"
         )
@@ -64,14 +65,14 @@ class IAController:
                         model=self.ai_model,
                         contents=[prompt]
                     )
-                    return response.text.strip()
+                    return "# Descripcion de la tarea\n"+response.text.strip()
                 except Exception as e:
                     return "❌ No se pudo procesar el archivo Word. Intentá con PDF o imagen."
-            else:
-                return (
-                    f"⚠️ Formato '{mime_type}' no soportado. "
-                    "Enviá el archivo como PDF o imagen (JPG/PNG)."
-                )
+        else:
+            return (
+                f"⚠️ Formato '{mime_type}' no soportado. "
+                "Enviá el archivo como PDF o imagen (JPG/PNG)."
+            )
         with tempfile.NamedTemporaryFile(
             delete=False,
             suffix=f"_{filename}",
@@ -85,7 +86,7 @@ class IAController:
                 contents=[upload_file, self.generate_prompt(task)], 
                 model=self.ai_model
                 )
-            return response.text.strip()
+            return "# Descripcion de la tarea\n"+response.text.strip()
         finally:
             if os.path.exists(tmp_path):
                 os.unlink(tmp_path)
