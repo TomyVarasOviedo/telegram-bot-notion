@@ -1,3 +1,5 @@
+import time
+
 from google import genai
 from google.genai import types
 from utils.config import GEMINI_API_KEY, AI_MODEL
@@ -57,7 +59,7 @@ class IAController:
         
     async def generate_task_from_file(self, file_bytes:bytes, filename:str, mime_type:str, task:dict) -> str:
         if mime_type not in TIPO_PERMITIDOS_ARCHIVOS:
-            if "word"  in mime_type or filename.endswith((".docx", ".doc")):
+            if "word" in mime_type or filename.endswith((".docx", ".doc")):
                 try:
                     text_content = await self.extract_text_from_docx(file_bytes)
                     prompt = self.generate_prompt(task) + f"\n\nCONTENIDO DEL ARCHIVO:\n{text_content}"
@@ -68,20 +70,31 @@ class IAController:
                     return "# Descripcion de la tarea\n"+response.text.strip()
                 except Exception as e:
                     return "❌ No se pudo procesar el archivo Word. Intentá con PDF o imagen."
-        else:
-            return (
-                f"⚠️ Formato '{mime_type}' no soportado. "
-                "Enviá el archivo como PDF o imagen (JPG/PNG)."
-            )
+            else:
+                return (
+                    f"⚠️ Formato '{mime_type}' no soportado. "
+                    "Enviá el archivo como PDF o imagen (JPG/PNG)."
+                )
+        name_parts = filename.rsplit(".", 1)
+        safe_filename = "".join(c if c.isalnum() or c in "-_" else "_" for c in name_parts[0])
+        if len(name_parts) > 1:
+            safe_filename += "." + name_parts[1]
         with tempfile.NamedTemporaryFile(
             delete=False,
-            suffix=f"_{filename}",
+            suffix=f"_{safe_filename}",
             mode="wb"
         ) as tmp:
             tmp.write(file_bytes)
             tmp_path = tmp.name
         try:
             upload_file = self.client.files.upload(file=tmp_path)
+            while upload_file.state == "PROCESSING":
+                # Verificar subida de archivo
+                time.sleep(2)
+                upload_file = self.client.files.get(name=upload_file.name)
+            if upload_file.state == "FAILED":
+                return "❌ Error al procesar el archivo PDF"
+            
             response = self.client.models.generate_content(
                 contents=[upload_file, self.generate_prompt(task)], 
                 model=self.ai_model
