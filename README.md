@@ -8,7 +8,8 @@ Bot de Telegram que permite crear tareas en Notion mediante una conversación gu
 - Flujo de conversación guiado paso a paso
 - Selector de fecha con calendario interactivo
 - Soporte para fotos y documentos en la descripción
-- Integración con Gemini AI para procesamiento inteligente
+- Integración con Gemini AI para procesamiento inteligente de PDFs, imágenes y DOCX
+- Extracción automática de requisitos y lista de verificación de tareas académicas
 - Health check endpoint (`/health`)
 - Soporte para Docker
 
@@ -61,9 +62,13 @@ telegram-bot-notion/
 │  NotionController       │       │    IAController         │
 │  (notionutils.py)       │       │    (aiutils.py)         │
 │                         │       │                         │
-│  • Crear páginas        │       │  • Procesamiento        │
-│  • Propiedades          │       │    de texto/imágenes    │
-│  • Archivos             │       │  • Resúmenes            │
+│  • Crear páginas        │       │  • Procesamiento de     │
+│  • Propiedades          │       │    PDFs, imágenes y     │
+│  • Archivos             │       │    DOCX                 │
+│                         │       │  • Extracción de        │
+│                         │       │    requisitos           │
+│                         │       │  • Listas de            │
+│                         │       │    verificación         │
 └─────────────────────────┘       └─────────────────────────┘
               │                               │
               └───────────────┬───────────────┘
@@ -120,7 +125,6 @@ python main.py
 | `NOTION_USER_ID` | ID de usuario de Notion |
 | `GEMINI_API_KEY` | API Key de Google Gemini |
 | `AI_MODEL` | Modelo de Gemini a usar |
-| `PORT` | Puerto para health check (default: 8080) |
 
 ## Configuración de Notion
 
@@ -134,6 +138,26 @@ python main.py
    - Plazo (date)
    - Prioridad (select)
    - Materia (select)
+
+## Funciones de IA
+
+El bot utiliza Google Gemini para procesar archivos y generar descripciones inteligentes de tareas académicas:
+
+| Función | Descripción |
+|---------|------------|
+| `generate_task_from_file()` | Procesa PDFs, imágenes y DOCX para extraer lista de requisitos y puntos a completar |
+
+### Tipos de Archivos Soportados
+
+| Tipo | Extensiones |
+|------|-------------|
+| PDF | `.pdf` |
+| Imágenes | `.jpg`, `.jpeg`, `.png`, `.webp`, `.gif`, `.heic` |
+| Word | `.docx` |
+
+### Ejemplo de Uso
+
+Al enviar un PDF de enunciado de tarea, la IA analiza el documento y genera una lista de verificación con todos los requisitos, entregables y pasos a seguir.
 
 ## Uso
 
