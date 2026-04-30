@@ -36,6 +36,10 @@ class IAController:
             "- Solo devuelve la lista junto con las secciones para la mejor compresion y discriminacion de las tareas por secciones, sin encabezados ni texto adicional\n"
             "- Si el documento no tiene requisitos claros, infiere los pasos logicos"
             "- TODAS las respuestas debe ser en formato Markdown, SIEMPRE"
+            "- Si en la tarea es necesario hacer una aclaración, observacion del profesor, instrucción importante, nota o advertencia, utiliza el formato de bloque de destacado (callout) con la sintaxis de Markdown extendido."
+            "- - El formato de esa aclaracion, instruccion, nota, observacion o advertencia DEBE SER: `<callout icon='emoji' color='color_background'>Texto de la aclaración</callout>`."
+            "- - Elige un emoji relevante para el contexto (por ejemplo, 💡 para una idea, ⚠️ para una advertencia, ℹ️ para una información) y un color de fondo apropiado como `blue_background`, `yellow_background`, o `red_background`."
+            "- - Cuando se utilice este formato NUNCA se le debe colocar '- [ ]' antes de la etiqueta 'callout', SIEMPRE dejarlo sin identar"
         )
     async def extract_text_from_docx(self, file_bytes:str) -> str:
         try:
